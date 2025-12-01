@@ -29,6 +29,7 @@ setup(
         "console_scripts": [
             "twist_subscriber = manual_robot.subscribe_twist:main",
             "twist_publisher = manual_robot.publish_twist:main",
+            "feedback_publisher = manual_robot.publish_feedback:main",
         ],
     },
 )

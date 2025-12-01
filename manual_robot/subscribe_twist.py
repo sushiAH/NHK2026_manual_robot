@@ -29,15 +29,15 @@ class twist_subscriber(Node):
         self.ser = serial.Serial("/dev/ttyUSB0", 921600, timeout=0)
 
         # 動作モードの送信
-        send_to_4motor(0, 2, 2, 2, 2, self.ser)
+        send_4value_by_one_packet(0, 2, 2, 2, 2, self.ser)
 
         # ゲインの送信
         # P_gain
-        send_to_4motor(9, 100, 100, 100, 100, self.ser)
+        send_4value_by_one_packet(9, 100, 100, 100, 100, self.ser)
         # I_gain
-        send_to_4motor(10, 10000, 10000, 10000, 10000, self.ser)
+        send_4value_by_one_packet(10, 10000, 10000, 10000, 10000, self.ser)
         # D_gain
-        send_to_4motor(11, 0, 0, 0, 0, self.ser)
+        send_4value_by_one_packet(11, 0, 0, 0, 0, self.ser)
 
         self.subscription_twist_joy = self.create_subscription(
             Twist,  # メッセージの型
