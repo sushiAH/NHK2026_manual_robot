@@ -28,8 +28,10 @@ setup(
     entry_points={
         "console_scripts": [
             "twist_subscriber = manual_robot.subscribe_twist:main",
+            "twist_subscriber_can = manual_robot.subscribe_twist_can:main",
             "twist_publisher = manual_robot.publish_twist:main",
             "feedback_publisher = manual_robot.publish_feedback:main",
+            "arm_hand_controller = manual_robot.arm_hand_controller:main",
         ],
     },
 )

@@ -34,10 +34,12 @@ class feedback_publisher(Node):
         self.declare_parameter("imu_frame_id", "imu_link")
         self.declare_parameter("odom_frame_id", "odom")
         self.declare_parameter("base_frame_id", "base_link")
+        self.declare_parameter("wheel_radius", 0.1)
 
         self.imu_frame_id = self.get_parameter("imu_frame_id").value
         self.odom_frame_id = self.get_parameter("odom_frame_id").value
         self.base_frame_id = self.get_parameter("base_frame_id").value
+        self.wheel_radius = self.get_parameter("wheel_radius").value
 
         # --- publisherの設定 ---
         self.imu_pub = self.create_publisher(Imu, "imu/data", 10)
@@ -57,7 +59,7 @@ class feedback_publisher(Node):
         self.enc_x_vel = 0.0
         self.enc_y_vel = 0.0
 
-        self.q_w = 0.0
+        self.q_w = 1.0
         self.q_x = 0.0
         self.q_y = 0.0
         self.q_z = 0.0
@@ -86,8 +88,8 @@ class feedback_publisher(Node):
             self.ang_y_vel = packet[7]
             self.ang_z_vel = packet[8]
 
-            self.enc_x_vel = packet[10]
-            self.enc_y_vel = packet[9]
+            self.enc_x_vel = packet[9]
+            self.enc_y_vel = packet[10]
 
     def publish_feedback(self):
         current_time = self.get_clock().now()
@@ -105,8 +107,8 @@ class feedback_publisher(Node):
             self.enc_x_vel, self.enc_y_vel, self.theta, self.ang_z_vel, dt
         )
 
-        self.x += delta_x
-        self.y += delta_y
+        self.x += delta_x * (2 * math.pi / 60.0) * self.wheel_radius
+        self.y += delta_y * (2 * math.pi / 60.0) * self.wheel_radius
         self.theta += delta_theta
 
         # 位置情報

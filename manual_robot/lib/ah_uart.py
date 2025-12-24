@@ -10,7 +10,7 @@ import struct
 import numpy as np
 
 
-def send_4value_by_one_pakcet(table_addr, target_1, target_2, target_3, target_4, ser):
+def send_4value_by_one_packet(table_addr, target_1, target_2, target_3, target_4, ser):
     """4つの値を一つのパケットにまとめてuart通信で送信する
 
     Args:

@@ -9,7 +9,9 @@ import numpy as np
 from geometry_msgs.msg import TransformStamped, Twist
 from tf2_ros import TransformBroadcaster
 from nav_msgs.msg import Odometry
-from manual_robot.lib.ah_uart import *
+from manual_robot.lib.ah_python_can import *
+
+import atexit
 
 
 def from_twist_to_motor_vel(vx, vy, w, L, fy):
@@ -21,23 +23,35 @@ def from_twist_to_motor_vel(vx, vy, w, L, fy):
     return (V_1, V_2, V_3, V_4)
 
 
+bus = can.interface.Bus(
+    bustype="socketcan", channel="can0", asynchronous=True, bitrate=1000000
+)
+
+
 class twist_subscriber(Node):
     def __init__(self):
         super().__init__("twist_subscriber")
 
-        # シリアル立ち上げ
-        self.ser = serial.Serial("/dev/ttyUSB0", 921600, timeout=0)
+        # can立ち上げ
+        send_packet_1byte(0x010, 0, 3, bus)
+        send_packet_1byte(0x011, 0, 3, bus)
+        send_packet_1byte(0x012, 0, 3, bus)
+        send_packet_1byte(0x013, 0, 0, bus)
 
-        # 動作モードの送信
-        send_4value_by_one_packet(0, 2, 2, 2, 2, self.ser)
+        send_packet_4byte(0x010, 9, 50, bus)
+        send_packet_4byte(0x011, 9, 50, bus)
+        send_packet_4byte(0x012, 9, 50, bus)
+        send_packet_4byte(0x013, 9, 50, bus)
 
-        # ゲインの送信
-        # P_gain
-        send_4value_by_one_packet(9, 100, 100, 100, 100, self.ser)
-        # I_gain
-        send_4value_by_one_packet(10, 10000, 10000, 10000, 10000, self.ser)
-        # D_gain
-        send_4value_by_one_packet(11, 0, 0, 0, 0, self.ser)
+        send_packet_4byte(0x010, 10, 5000, bus)  # set pos_p_gain
+        send_packet_4byte(0x011, 10, 5000, bus)  # set pos_p_gain
+        send_packet_4byte(0x012, 10, 5000, bus)  # set pos_p_gain
+        send_packet_4byte(0x013, 10, 5000, bus)  # set pos_p_gain
+
+        send_packet_4byte(0x010, 11, 0, bus)  # set pos_p_gain
+        send_packet_4byte(0x011, 11, 0, bus)  # set pos_p_gain
+        send_packet_4byte(0x012, 11, 0, bus)  # set pos_p_gain
+        send_packet_4byte(0x013, 11, 0, bus)  # set pos_p_gain
 
         self.subscription_twist_joy = self.create_subscription(
             Twist,  # メッセージの型
@@ -58,8 +72,8 @@ class twist_subscriber(Node):
         self.joy_linear_y = 0
         self.joy_w = 0
 
-        # wirte_to_motorの割り込み設定
         timer_period = 0.01
+        # wirte_to_motorの割り込み設定
         self.timer = self.create_timer(timer_period, self.write_to_motor)
 
     def twist_by_joy_callback(self, msg):
@@ -80,7 +94,10 @@ class twist_subscriber(Node):
 
         V_1, V_2, V_3, V_4 = from_twist_to_motor_vel(vx, vy, w, self.L, self.fy)
 
-        send_4value_by_one_packet(2, V_1, V_2, V_3, V_4, self.ser)
+        send_packet_4byte(0x010, 2, V_1, bus)  # set_goal_pos
+        send_packet_4byte(0x011, 2, V_2, bus)  # set_goal_pos
+        send_packet_4byte(0x012, 2, V_3, bus)  # set_goal_pos
+        send_packet_4byte(0x013, 2, V_4, bus)  # set_goal_pos
 
 
 def main():
@@ -91,6 +108,16 @@ def main():
     rclpy.spin(twist_subscriber_node)  # ノードをスピンさせる
     twist_subscriber_node.destroy_node()  # ノードを停止する
     rclpy.shutdown()
+
+
+def stop():
+    send_packet_1byte(0x010, 0, 0, bus)
+    send_packet_1byte(0x011, 0, 0, bus)
+    send_packet_1byte(0x012, 0, 0, bus)
+    send_packet_1byte(0x013, 0, 0, bus)
+
+
+atexit.register(stop)
 
 
 if __name__ == "__main__":
