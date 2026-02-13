@@ -21,10 +21,10 @@ from ah_python_can import *
 
 
 def from_twist_to_motor_vel(vx, vy, w, L, fy):
-    V_1 = -(-vy + vx + 2 * math.sqrt(2) * w * L) / (4 * math.pi * fy)
-    V_2 = (-vy - vx + 2 * math.sqrt(2) * w * L) / (4 * math.pi * fy)
-    V_3 = (vy + vx + 2 * math.sqrt(2) * w * L) / (4 * math.pi * fy)
-    V_4 = (vy - vx + 2 * math.sqrt(2) * w * L) / (4 * math.pi * fy)
+    V_1 = (-vx + vy + 2 * math.sqrt(2) * w * L) / (4 * math.pi * fy)
+    V_2 = (+vx + vy + 2 * math.sqrt(2) * w * L) / (4 * math.pi * fy)
+    V_3 = (-vx + vy + 2 * math.sqrt(2) * -w * L) / (4 * math.pi * fy)
+    V_4 = (-vx - vy + 2 * math.sqrt(2) * w * L) / (4 * math.pi * fy)
 
     return (V_1, V_2, V_3, V_4)
 

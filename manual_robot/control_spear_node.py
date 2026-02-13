@@ -15,6 +15,7 @@ target_dir = os.path.abspath("/home/aratahorie/ah_python_libraries")
 sys.path.append(target_dir)
 from ah_python_can import *
 from dyna_lib import *
+from auto_robot_interfaces.msg import DynaFeedback, DynaTarget
 
 bus = can.interface.Bus(bustype="socketcan",
                         channel="can0",

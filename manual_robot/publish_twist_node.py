@@ -19,8 +19,8 @@ def rot(vec, theta):
     cos, sin = np.cos(theta), np.sin(theta)
 
     R = np.array([
-        [cos, sin],
-        [-sin, cos],
+        [cos, -sin],
+        [sin, cos],
     ])
 
     return R @ vec
@@ -76,11 +76,11 @@ class TwistPublisher(Node):
         if abs(axes_values[3]) < 0.1:
             axes_values[3] = 0
 
-        v = np.array([axes_values[0] * 2, axes_values[1] * 2])
+        v = np.array([-axes_values[0] * 2, -axes_values[1] * 2])
         Rv = rot(v, self.yaw_rad)
         twist.linear.y = float(Rv[0])
         twist.linear.x = float(Rv[1])
-        twist.angular.z = axes_values[3]
+        twist.angular.z = -axes_values[2]
 
         self.twist_publisher.publish(twist)
 
@@ -89,6 +89,7 @@ class TwistPublisher(Node):
 
         euler = tf_transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
         self.yaw_rad = euler[2]
+        self.get_logger().info(f"値:{self.yaw_rad}")
 
 
 def main():

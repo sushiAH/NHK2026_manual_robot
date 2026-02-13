@@ -15,6 +15,7 @@ target_dir = os.path.abspath("/home/aratahorie/ah_python_libraries")
 sys.path.append(target_dir)
 from ah_python_can import *
 from dyna_lib import *
+from auto_robot_interfaces.msg import DynaFeedback, DynaTarget
 
 bus = can.interface.Bus(bustype="socketcan",
                         channel="can0",
@@ -69,11 +70,11 @@ class BoxController(Node):
         if self.state_counter == 0:
             self.publish_dyna_pos(3, 1500)  # 縮む
             self.publish_dyna_pos(4, 2100)  # ハンド開く
-            send_packet_4byte(0x020, 1, 3000, bus)  # 昇降　下
+            send_packet_4byte(0x020, 1, 2300, bus)  # 昇降　下
 
         elif self.state_counter == 1:
             self.publish_dyna_pos(3, 3000)  # 伸びる
-            send_packet_4byte(0x020, 1, 2000, bus)  #昇降　上
+            send_packet_4byte(0x020, 1, 1700, bus)  #昇降　上
 
         elif self.state_counter == 2:
             self.publish_dyna_pos(4, 1400)  # ハンド閉じる
@@ -98,6 +99,15 @@ def main():
     box_controller_node.destroy_node()  # ノードを停止する
     rclpy.shutdown()
 
+
+def stop():
+    send_packet_1byte(0x020, 0, 0, bus)
+    send_packet_1byte(0x021, 0, 0, bus)
+    send_packet_1byte(0x022, 0, 0, bus)
+    send_packet_1byte(0x023, 0, 0, bus)
+
+
+atexit.register(stop)
 
 if __name__ == "__main__":
     main()
