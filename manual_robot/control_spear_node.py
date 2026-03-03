@@ -6,6 +6,7 @@ import numpy as np
 
 import atexit
 from sensor_msgs.msg import Joy
+import time
 
 #自作ライブラリ
 import os
@@ -74,11 +75,12 @@ class SpearController(Node):
 
         elif self.state_counter == 1:
             send_packet_1byte(0x021, 12, 1, bus)  # air 開く
-            self.publish_dyna_pos(0, 3800)
+            self.publish_dyna_pos(0, 2100)  #縦
 
         elif self.state_counter == 2:
-            self.publish_dyna_pos(1, 3100)
-            self.publish_dyna_pos(2, 3100)
+            self.publish_dyna_pos(1, 3000)  #ハンド閉じる
+            self.publish_dyna_pos(2, 3200)  #ハンド閉じる
+            send_packet_1byte(0x021, 12, 0, bus)  # air 閉じる
 
         elif self.state_counter == 3:
             self.publish_dyna_pos(0, 3100)  #横

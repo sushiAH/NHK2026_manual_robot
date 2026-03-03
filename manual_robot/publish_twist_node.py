@@ -73,8 +73,8 @@ class TwistPublisher(Node):
             axes_values[1] = 0
         if abs(axes_values[0]) < 0.1:
             axes_values[0] = 0
-        if abs(axes_values[3]) < 0.1:
-            axes_values[3] = 0
+        if abs(axes_values[2]) < 0.1:
+            axes_values[2] = 0
 
         v = np.array([-axes_values[0] * 2, -axes_values[1] * 2])
         Rv = rot(v, self.yaw_rad)
